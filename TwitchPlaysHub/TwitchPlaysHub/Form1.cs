@@ -1,25 +1,17 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Timers;
 using System.Runtime.InteropServices;
-using System.Windows.Input;
-using System.Windows;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Timers;
+using System.Windows.Forms;
 using WindowsInput;
 using WindowsInput.Native;
-using System.Windows.Forms;
-using System.Collections;
-using System.Collections.Specialized;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 
 namespace TwitchPlaysHub
 {
@@ -105,7 +97,7 @@ namespace TwitchPlaysHub
         //int Tempint = 0;
         public void SendDirectInput(string type, short keycd)
         {
-            
+
             MasterDirectInput MDI = new MasterDirectInput();
             //Console.WriteLine(Tempint);
             if (type == "KeyDown")
@@ -119,8 +111,8 @@ namespace TwitchPlaysHub
                 //MDI.Send_Key(Convert.ToInt16(Tempint), 2);
                 //Tempint += 1;
             }
-            
-            
+
+
         }
         /*
         new Input
@@ -1703,7 +1695,7 @@ namespace TwitchPlaysHub
             return VirtualKeyCode.TAB;
         }
 
-        void PlayCommands(List<string> multicommands,List<string> multicommandtypes, List<Int32> multicommandtimers, string userName)
+        void PlayCommands(List<string> multicommands, List<string> multicommandtypes, List<Int32> multicommandtimers, string userName)
         {
 
             int timingspacer = 0;
@@ -2174,9 +2166,10 @@ namespace TwitchPlaysHub
                 CommandTypeBox.Items.Add("Stop");
                 CommandTypeBox.Items.Add("Delay");
                 CommandTypeBox.Items.Add("Disable");
-                if (EnableLurkingCheckBox.Checked == true) {
-                CommandTypeBox.Items.Add("Lurk");
-                CommandTypeBox.Items.Add("Play");
+                if (EnableLurkingCheckBox.Checked == true)
+                {
+                    CommandTypeBox.Items.Add("Lurk");
+                    CommandTypeBox.Items.Add("Play");
                 }
                 //--Bleh I hate doing this manully (Resets values that are ment to be there then adds additional triggers after)
                 foreach (string item in RemindersListBox.Items)
@@ -2267,49 +2260,49 @@ namespace TwitchPlaysHub
                 irc = new IrcClient("irc.twitch.tv", 6667,
                 TwitchUsernameTextbox.Text, TwitchOAuthTextbox.Text, TwitchChannelNameTextbox.Text);
 
-            // Ping to the server to make sure this bot stays connected to the chat
-            // Server will respond back to this bot with a PONG (without quotes):
-            // Example: ":tmi.twitch.tv PONG tmi.twitch.tv :irc.twitch.tv"
-            ping = new PingSender(irc);
-            ping.Start();
+                // Ping to the server to make sure this bot stays connected to the chat
+                // Server will respond back to this bot with a PONG (without quotes):
+                // Example: ":tmi.twitch.tv PONG tmi.twitch.tv :irc.twitch.tv"
+                ping = new PingSender(irc);
+                ping.Start();
                 //autoconnect = new AutoReconnect(irc, Convert.ToInt32(ReconnectTimeBox.Value));
                 //autoconnect.Start();
-                
+
 
                 TwitchIRCTextbox.Clear();
-            PressedConnect = true;
-            ConnectButton.Text = "Connected | Press to Disconnect";
-              /*  new Thread(() =>
-                {
-                    while (PressedConnect)
-                    {
-                        Thread.Sleep(Convert.ToInt32(ReconnectTimeBox.Value));
-                        Console.WriteLine("Last IRC message: " + irc.ReadMessage());
-                        if (irc.IsConnected() == false)
-                        {
-                            irc.SendIrcMessage("**Disconnected From IRC**");
-                            irc = null; 
-                            timeschatted = 0;
+                PressedConnect = true;
+                ConnectButton.Text = "Connected | Press to Disconnect";
+                /*  new Thread(() =>
+                  {
+                      while (PressedConnect)
+                      {
+                          Thread.Sleep(Convert.ToInt32(ReconnectTimeBox.Value));
+                          Console.WriteLine("Last IRC message: " + irc.ReadMessage());
+                          if (irc.IsConnected() == false)
+                          {
+                              irc.SendIrcMessage("**Disconnected From IRC**");
+                              irc = null; 
+                              timeschatted = 0;
 
-                            Thread.Sleep(Convert.ToInt32(ReconnectTimeBox.Value));
+                              Thread.Sleep(Convert.ToInt32(ReconnectTimeBox.Value));
 
-                            irc = new IrcClient("irc.twitch.tv", 6667,
-                            TwitchUsernameTextbox.Text, TwitchOAuthTextbox.Text, TwitchChannelNameTextbox.Text);
+                              irc = new IrcClient("irc.twitch.tv", 6667,
+                              TwitchUsernameTextbox.Text, TwitchOAuthTextbox.Text, TwitchChannelNameTextbox.Text);
 
-                            if (BackgroundWorker.IsBusy != true)
-                            {
-                                BackgroundWorker.RunWorkerAsync();
-                                Console.WriteLine("Running Background Worker");
-                            }
-                        }
-                    }
+                              if (BackgroundWorker.IsBusy != true)
+                              {
+                                  BackgroundWorker.RunWorkerAsync();
+                                  Console.WriteLine("Running Background Worker");
+                              }
+                          }
+                      }
 
-                }).Start();
-              */
+                  }).Start();
+                */
                 //Run Background Worker
                 if (BackgroundWorker.IsBusy != true)
-            {
-                BackgroundWorker.RunWorkerAsync();
+                {
+                    BackgroundWorker.RunWorkerAsync();
                     Console.WriteLine("Running Background Worker");
                     //Lets start some Reminder Timers
                     foreach (Object i in RemindersListBox.Items)
@@ -2332,14 +2325,16 @@ namespace TwitchPlaysHub
                             myTimer.AutoReset = true;
                             myTimer.Enabled = true;
                             remindertimers.Add(myTimer);
-                        } else if (itembreakdown[1] == "Active Timer")
+                        }
+                        else if (itembreakdown[1] == "Active Timer")
                         {
                             var myTimer = new System.Timers.Timer(Convert.ToInt32(itembreakdown[2]) * 1000);
                             myTimer.Elapsed += (source, c) => ReminderTimerTick(sender, c, itembreakdown[3], "Active Timer");//ReminderTimerTick;
                             myTimer.AutoReset = true;
                             myTimer.Enabled = true;
                             remindertimers.Add(myTimer);
-                        } else if (itembreakdown[1] == "Inactive Timer")
+                        }
+                        else if (itembreakdown[1] == "Inactive Timer")
                         {
                             var myTimer = new System.Timers.Timer(Convert.ToInt32(itembreakdown[2]) * 1000);
                             myTimer.Elapsed += (source, c) => ReminderTimerTick(sender, c, itembreakdown[3], "Inactive Timer");//ReminderTimerTick;
@@ -2364,20 +2359,21 @@ namespace TwitchPlaysHub
                     acttimer.Enabled = true;
                     activitytimer = acttimer;
                 }
-                
-            } else if (PressedConnect == true)
+
+            }
+            else if (PressedConnect == true)
             {
                 //if (irc != null)
                 //{
-                    PressedConnect = false;
+                PressedConnect = false;
                 irc.SendIrcMessage("Disconnected from IRC");
                 irc = null; //This also makes the BackgroundWorker Stop.
-                                //BackgroundWorker.CancelAsync();
-                                //BackgroundWorker.DoWork();
-                
-                    ConnectButton.Text = "Connect";
-                    timeschatted = 0;
-                    TwitchIRCTextbox.Clear();
+                            //BackgroundWorker.CancelAsync();
+                            //BackgroundWorker.DoWork();
+
+                ConnectButton.Text = "Connect";
+                timeschatted = 0;
+                TwitchIRCTextbox.Clear();
                 //Remove Reminder Timers
                 foreach (System.Timers.Timer i in remindertimers)
                 {
@@ -2394,11 +2390,11 @@ namespace TwitchPlaysHub
                     activitytimer.Enabled = false;
                     activitytimer = null;
                 }
-                
+
                 //}
 
             }
-            
+
         }
 
         public void ReminderTimerTick(Object source, ElapsedEventArgs c, string remindertext, string remindertype)
@@ -2419,8 +2415,9 @@ namespace TwitchPlaysHub
                     irc.SendPublicChatMessage(remindertext);
                     TwitchIRCTextbox.AppendText("REMINDER:" + remindertext + Environment.NewLine);
                 }
-                
-            } else if (remindertype == "Active Timer")
+
+            }
+            else if (remindertype == "Active Timer")
             {
                 Console.WriteLine("Using Active Chat, Status is:" + activechat);
                 if (activechat == true)
@@ -2440,7 +2437,7 @@ namespace TwitchPlaysHub
                         TwitchIRCTextbox.AppendText("REMINDER:" + remindertext + Environment.NewLine);
                     }
                 }
-            
+
             }
             else if (remindertype == "Inactive Timer")
             {
@@ -2471,23 +2468,25 @@ namespace TwitchPlaysHub
         {
             activechattick += 1;
             //Console.WriteLine(activechattick + " " + Convert.ToInt32(ReminderActivityTimer.Value));
-            if (activechattick >= Convert.ToInt32(ReminderActivityTimer.Value)) {
+            if (activechattick >= Convert.ToInt32(ReminderActivityTimer.Value))
+            {
                 //irc.SendPublicChatMessage("***Chat No Longer Active***");
                 //TwitchIRCTextbox.AppendText("REMINDER:" + remindertext + Environment.NewLine);
-                
+
                 activechat = false;
                 //activitytimer.Enabled = false;
                 //activitytimer.Stop();
                 //activitytimer.Dispose();
                 //activitytimer = null;
                 //activitytimer = new System.Timers.Timer(Convert.ToInt32(ReminderActivityTimer.Value) * 1000);
-            }else if (activechattick >= Convert.ToInt32(ReconnectTimeBox.Value) && AutoReconnectCheckBox.Checked == true && autoreconnecting == false)
+            }
+            else if (activechattick >= Convert.ToInt32(ReconnectTimeBox.Value) && AutoReconnectCheckBox.Checked == true && autoreconnecting == false)
             {
                 Console.WriteLine("Chat has been inactive for a while, let's reset the bot!");
                 //ConnectButton_Click(object sender, EventArgs e);
                 autoreconnecting = true;
                 ConnectButton.PerformClick();
-                Thread.Sleep(Convert.ToInt32(ReconnectDelayTimeBox.Value*1000));
+                Thread.Sleep(Convert.ToInt32(ReconnectDelayTimeBox.Value * 1000));
                 ConnectButton.PerformClick();
             }
 
@@ -2623,7 +2622,7 @@ namespace TwitchPlaysHub
                         //if (islurking == false)
                         //{
 
-                        
+
                         //Console.WriteLine(message); // Print parsed irc message (debugging only)
                         //This clears the Multi Command List and Repopulates it accordingly ********************************************************
                         multiplecommands.Clear();
@@ -2633,7 +2632,7 @@ namespace TwitchPlaysHub
                         activechat = true;
                         activechattick = 0;
 
-                            if (UseMultipleCommandsSeparator.Checked == true)
+                        if (UseMultipleCommandsSeparator.Checked == true)
                         {
                             if (message.Contains(MultipleCommandSeparatorTextBox.Text))
                             {
@@ -2664,7 +2663,8 @@ namespace TwitchPlaysHub
                                                             Console.WriteLine(i + " Matches " + itembreakdown[1]);
                                                         }
                                                     }
-                                                } else
+                                                }
+                                                else
                                                 {
                                                     multiplecommands.Add(itembreakdown[2]);
                                                     multiplecommandtimers.Add(Convert.ToInt32(Convert.ToDecimal(itembreakdown[7]) * 1000));
@@ -2708,8 +2708,9 @@ namespace TwitchPlaysHub
                                     }
 
                                 }
-                                
-                            } else if (message != null)
+
+                            }
+                            else if (message != null)
                             {
                                 foreach (var c in MasterControlList.Items)
                                 {
@@ -2780,10 +2781,10 @@ namespace TwitchPlaysHub
                         }
                         TwitchIRCTextbox.AppendText(userName + ": " + message + Environment.NewLine); // Print raw irc messages
                         commandorderlist.Add(message);
-                        
-                            
 
-                        
+
+
+
                         //Check All Controls in List
                         //  foreach (string item in MasterControlList.Items) do
                         //  {
@@ -2800,17 +2801,18 @@ namespace TwitchPlaysHub
 
                             if (AllowOverlappingTriggers.Checked == true)
                             {
-                                
+
                                 new Thread(() =>
                                 {
                                     PlayCommands(localmultiplecommands, localmultiplecommandtypes, localmultiplecommandtimers, userName);
 
                                 }).Start();
-                            } else
+                            }
+                            else
                             {
-                                Thread newinputthread = 
-                                new Thread(() => 
-                                { 
+                                Thread newinputthread =
+                                new Thread(() =>
+                                {
                                     PlayCommands(localmultiplecommands, localmultiplecommandtypes, localmultiplecommandtimers, userName);
                                 });
                                 newinputthread.Start();
@@ -2915,7 +2917,7 @@ namespace TwitchPlaysHub
             //    Console.WriteLine("IRC is null, closing BackgroundWorker");
             //    e.Cancel = true;
             //}
-                       
+
         }
 
         private void setGameWindowToolStripMenuItem_Click(object sender, EventArgs e)
@@ -3075,7 +3077,7 @@ namespace TwitchPlaysHub
             ChooseDirectoryDialog.DefaultExt = "txt";
             ChooseDirectoryDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
             //ChooseDirectoryDialog.ShowDialog();
-            
+
             if (ChooseDirectoryDialog.ShowDialog() == DialogResult.OK)
             {
                 StreamWriter SaveFile1 = new System.IO.StreamWriter(ChooseDirectoryDialog.FileName);
@@ -3217,7 +3219,7 @@ namespace TwitchPlaysHub
                 }
                 Properties.Settings.Default.Save();
             }
-            
+
         }
 
         private void AddLurkerButton_Click(object sender, EventArgs e)
@@ -3256,14 +3258,14 @@ namespace TwitchPlaysHub
 
         private void macrosToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                MacroPanel1.Visible = true;
-                MacroPanel1.BringToFront();
+            MacroPanel1.Visible = true;
+            MacroPanel1.BringToFront();
         }
 
         private void controlsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-                ControlPanel1.Visible = true;
-                ControlPanel1.BringToFront();
+            ControlPanel1.Visible = true;
+            ControlPanel1.BringToFront();
         }
 
         private void SettingsComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -3272,8 +3274,10 @@ namespace TwitchPlaysHub
             {
                 SettingsSubPanel1.Visible = true;
                 SettingsSubPanel1.BringToFront();
-            } else {
-                
+            }
+            else
+            {
+
                 //SettingsSubPanel1.Visible = false;
                 SettingsSubPanel1.SendToBack();
             }
@@ -3337,7 +3341,7 @@ namespace TwitchPlaysHub
 
         private void AddReminderButton_Click(object sender, EventArgs e)
         {
-            var newindex = RemindersListBox.Items.Add("Reminder|Trigger|600|Just wanted to remind you guys about our discord! https://discord.gg/dUB7E9UrMS");
+            var newindex = RemindersListBox.Items.Add("Reminder|Trigger|600|Just wanted to remind you guys about our discord! lolololol https://discord.gg/dUB7E9UrMS");
             RemindersListBox.SelectedIndex = newindex;
             UpdateSelectedReminder();
             UpdateControlTypeBox();
@@ -3400,16 +3404,18 @@ namespace TwitchPlaysHub
             ChooseFileDialog.DefaultExt = "txt";
             ChooseFileDialog.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*";
             //ChooseFileDialog.ShowDialog();
-            
-            
-            if (ChooseFileDialog.ShowDialog() == DialogResult.OK) {
+
+
+            if (ChooseFileDialog.ShowDialog() == DialogResult.OK)
+            {
                 string[] codelist = File.ReadAllLines(ChooseFileDialog.FileName);
                 RemindersListBox.Items.Clear();
                 foreach (string item in codelist)
                 {
                     RemindersListBox.Items.Add(item);
                 }
-            } else
+            }
+            else
             {
                 Console.WriteLine("No File Chosen");
             }
