@@ -1701,16 +1701,7 @@ namespace TwitchPlaysHub
             int timingspacer = 0;
             int currentcommandcount = 0;
             truestop = false;
-            //List<string> Tempcommandorderlist = new List<string> commandorderlist;
-            //List<string> Tempmultiplecommands =  multiplecommands;
-            //List<Int32> Tempmultiplecommandtimers = multiplecommandtimers;
-            //List<string> Tempmultiplecommandtypes = multiplecommandtypes;
 
-            //List<string> commandorderlist = new List<string> { };
-            //List<string> multiplecommands = new List<string> { };
-            //List<Int32> multiplecommandtimers = new List<Int32> { };
-            //List<string> multiplecommandtypes = new List<string> { };
-            //Thread newthread = null;
 
             if (chatdisabled == false || IsAMod(userName) == true)
             {
@@ -1719,19 +1710,21 @@ namespace TwitchPlaysHub
                 foreach (string singlecommand in multicommands.ToList())
                 {
 
+                    Console.WriteLine(singlecommand);
+
                     if (truestop == true) { break; } //All you need to stop everyone's fun
                     //Thread.Sleep(Convert.ToInt32(InputUpDownDelay.Value * 1000));
                     //Thread.Sleep(timingspacer + Decimal.ToInt32(InputUpDownDelay.Value) * 1000);
                     //Console.WriteLine(ThreadCount);
-                    Console.WriteLine("we Just waited: " + timingspacer.ToString() + " And will add " + multicommandtimers[currentcommandcount]);
+                    //Console.WriteLine("we Just waited: " + timingspacer.ToString() + " And will add " + multicommandtimers[currentcommandcount]);
                     timingspacer = multicommandtimers[currentcommandcount];
                     //Console.WriteLine("Command Type: " + multicommandtypes[currentcommandcount]);
 
 
                     if (multicommandtypes[currentcommandcount] == "Direct Press" && IsLurking(userName) == false) //--------------------------------------DIRECT IMPACT!! .. I mean Direct Press
                     {
-                        Console.WriteLine("We are about to do a DIRECT PRESS");
-                        Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
+                        //Console.WriteLine("We are about to do a DIRECT PRESS");
+                        //Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
                         //Console.WriteLine(Convert.ToInt16(ConvertTextToVirtualKeyCode(singlecommand)));
 
                         if (heldkeys.Count > 0)
@@ -1762,8 +1755,8 @@ namespace TwitchPlaysHub
                     }
                     else if (multicommandtypes[currentcommandcount] == "Direct Hold" && IsLurking(userName) == false) //---------------------------------------------------------------------Direct Hold
                     {
-                        Console.WriteLine("We are about to do a DIRECT HOLD");
-                        Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
+                        //Console.WriteLine("We are about to do a DIRECT HOLD");
+                        //Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
 
                         if (heldkeys.Count > 0)
                         {
@@ -1795,8 +1788,8 @@ namespace TwitchPlaysHub
                     }
                     else if (multicommandtypes[currentcommandcount] == "Simulated Press" && IsLurking(userName) == false) //-----------------------------------------------------------------Simulated Press
                     {
-                        Console.WriteLine("We are about to press a SIMULATED PRESS");
-                        Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
+                        //Console.WriteLine("We are about to press a SIMULATED PRESS");
+                        //Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
                         //Console.WriteLine(Convert.ToInt16(ConvertTextToVirtualKeyCode(singlecommand)));
                         InputSimulator kb = new InputSimulator();
 
@@ -1828,8 +1821,8 @@ namespace TwitchPlaysHub
                     }
                     else if (multicommandtypes[currentcommandcount] == "Simulated Hold" && IsLurking(userName) == false) //---------------------------------------------------------------Simulated Hold
                     {
-                        Console.WriteLine("We are about to press a SIMULATED HOLD");
-                        Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
+                        //Console.WriteLine("We are about to press a SIMULATED HOLD");
+                        //Console.WriteLine("Ingoing Keypress Delay: " + timingspacer);
                         InputSimulator kb = new InputSimulator();
 
                         if (heldkeys.Count > 0)
@@ -1862,7 +1855,7 @@ namespace TwitchPlaysHub
                     }
                     else if (multicommandtypes[currentcommandcount] == "Stop" && IsLurking(userName) == false) //------------------------------------------------------------------------------Stop it, get some help
                     {
-                        Console.WriteLine("We are about to perform a TRUE STOP");
+                        //Console.WriteLine("We are about to perform a TRUE STOP");
                         InputSimulator kb = new InputSimulator();
 
                         if (heldkeys.Count > 0)
@@ -2503,17 +2496,99 @@ namespace TwitchPlaysHub
             }
         }
 
+        private string parseRawMsgForFcns(string msg)
+        {
+            string parsed = "";
+
+            for (int i = 0; i < msg.Length; i++)
+            {
+               
+
+                if (msg.Length - i > 7)
+                {
+                    // check for repeat keyword with open paren, contains at least 1 arg
+                    if (msg.Substring(i, 7) == "repeat(" && msg.Substring(i + 7).IndexOf(",") != -1)
+                    {
+                        // first arg begin on index 7, end on index where "," is found
+                        int commaSeparatorIndex = msg.Substring(i + 7).IndexOf(",") + i + 7; // add offsets i and 7 to calculate the relative index
+                        string stuffToRepeat = msg.Substring(i + 7, commaSeparatorIndex - i - 7);
+
+                        // look for the next closing paren, need to grab substring between comma and itself
+
+                        int closingParanOffset = msg.Substring(commaSeparatorIndex).IndexOf(")");
+                        string timesToRepeat = msg.Substring(commaSeparatorIndex + 1, closingParanOffset - 1).Trim();
+
+                        // check 2nd arg (timesToRepeat) is an integer between 1 and 100
+                        string pattern = @"^([1-9]|([1-9][0-9])|100)$";
+
+                        var match = Regex.Match(timesToRepeat, pattern, RegexOptions.IgnoreCase);
+
+                        if (match.Success)
+                        {
+                            // it matches yay ^_^
+                            int x = 0;
+
+                            if (Int32.TryParse(timesToRepeat, out x))
+                            {
+                                // you know that the parsing attempt was successful
+
+                                for (int j = 0; j < x; j++)
+                                {
+                                    // add on to parsed string
+                                    parsed += $" {stuffToRepeat} ";
+                                }
+                            }
+                        }
+
+                        // update current index, past the fcn
+
+                        i = closingParanOffset + commaSeparatorIndex;
+                    }
+
+                    else if (msg.Substring(i, 7) == "repeat(" && msg.Substring(i + 7).IndexOf(",") == -1) // invalid fcn sytax, advance to closing paran then continue
+                    {
+                        // advance past the closing paren that comes after i, invalid arg count
+
+                        // check if it exists
+                        if (msg.Substring(i + 7).IndexOf(")") != -1)
+                        {
+                            i = i + 7 + msg.Substring(i + 7).IndexOf(")");
+                        }
+                        else
+                        {
+                            i = msg.Length; // the loop should end
+                        }
+                    }
+
+                    else // just a regular char, concat into parsed
+                    {
+                        parsed += msg[i];
+                    }
+                }
+                
+                
+                else // just a regular char, concat into parsed
+                {
+                    parsed += msg[i];
+                }
+
+            }
+
+
+            return parsed;
+        }
+
         private void BackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
             CheckForIllegalCrossThreadCalls = false;
 
             while (irc != null)
             {
-                //Thread.Sleep(1000);
+                
                 timeschatted += 1;
-                //TwitchIRCTextbox.Text = TwitchIRCTextbox.Text + (timeschatted.ToString() + Environment.NewLine); // Print raw irc messages
 
                 string message = irc.ReadMessage();
+
                 if (timeschatted < 11)
                 {
                     TwitchIRCTextbox.Text = TwitchIRCTextbox.Text + (message + Environment.NewLine); // Print raw irc messages
@@ -2534,94 +2609,13 @@ namespace TwitchPlaysHub
                                                                                        // Format: ":[user]!"
                                                                                        // Get user's message
                         intIndexParseSign = message.IndexOf(" :");
-                        message = message.Substring(intIndexParseSign + 2);
 
-                        /* Gives that big block of text of the commands lol
-                        if (message.Equals(ShowAllCommandsKeywordTextbox.Text))
-                        {
-                            string wholecommandlist = "List of Active Commands: ";
-                            foreach (Object i in MasterControlList.Items)
-                            {
-                                string[] itembreakdown = i.ToString().Split(Convert.ToChar("|"));
-                                if (Convert.ToBoolean(itembreakdown[3]) == true)
-                                {
-                                    wholecommandlist = wholecommandlist + itembreakdown[1] + ",";
-                                }
-                            }
-                            irc.SendPublicChatMessage(wholecommandlist);
-                        } */
-                        //If you wanna lurk, we'll put ya down for it
-                        /*if (message.Equals(LurkCommandTextBox.Text) && EnableLurkingCheckBox.Checked == true)
-                        {
-                            Console.WriteLine("Lurk Command seen");
-                            bool isinlurklist = false;
-                            int removeindex = 0;
-                            foreach (var l in LurkList.Items)
-                            {
-                                if (userName.ToUpper() == l.ToString().ToUpper())
-                                {
-                                    isinlurklist = true;
-                                    Console.WriteLine("Lurker exsists in the list");
-                                }
-                                if (isinlurklist == false)
-                                {
-                                    removeindex++;
-                                }
-                            }
-                            if (isinlurklist == true)
-                            {
-                                Console.WriteLine("Found in the list, Removing them");
-                                LurkList.Items.RemoveAt(removeindex);
-                                if (Properties.Settings.Default.TwitchLurkList != null)
-                                {
-                                    Properties.Settings.Default.TwitchLurkList.Clear();
-                                    foreach (string item in LurkList.Items)
-                                    {
-                                        Properties.Settings.Default.TwitchLurkList.Add(item);
-                                    }
-                                    Properties.Settings.Default.Save();
-                                }
-                                //Properties.Settings.Default.TwitchLurkList.RemoveAt(removeindex);
-                                //Properties.Settings.Default.Save();
-                                string playmessage = PlayingMessageTextBox.Text.Replace("{user}", userName);
-                                irc.SendPublicChatMessage(playmessage);
-                            } else {
-                                Console.WriteLine("Was not found in the list, adding them");
-                                var newindex = LurkList.Items.Add(userName);
+                        Console.WriteLine(message.Substring(intIndexParseSign + 2));
+                        message = parseRawMsgForFcns(message.Substring(intIndexParseSign + 2)); // raw message
 
-                                if (Properties.Settings.Default.TwitchLurkList != null)
-                                {
-                                    Properties.Settings.Default.TwitchLurkList.Clear();
-                                    foreach (string item in LurkList.Items)
-                                    {
-                                        Console.WriteLine("New Lurker? " + item);
-                                        Properties.Settings.Default.TwitchLurkList.Add(item);
-                                    }
-                                    Properties.Settings.Default.Save();
-                                }
-                                //LurkList.Items.Add(userName);
-                                //Properties.Settings.Default.TwitchLurkList.Add(userName);
-                                //Properties.Settings.Default.Save();
-                                string lurkmessage = LurkingMessageTextBox.Text.Replace("{user}", userName);
-                                irc.SendPublicChatMessage(lurkmessage);
-                            }
-                        }
-                        */
-                        //Check if they are a lurker :v
-                        /*bool islurking = false;
-                        if (EnableLurkingCheckBox.Checked == true)
-                        {
-                            foreach (var l in LurkList.Items)
-                            {
-                                if (userName.ToUpper() == l.ToString().ToUpper())
-                                {
-                                    islurking = true;
-                                }
-                            }
-                        } */
-                        //if (islurking == false)
-                        //{
+                        Console.WriteLine("After:");
 
+                        Console.WriteLine(message);
 
                         //Console.WriteLine(message); // Print parsed irc message (debugging only)
                         //This clears the Multi Command List and Repopulates it accordingly ********************************************************
@@ -2638,7 +2632,7 @@ namespace TwitchPlaysHub
                             {
                                 string[] messagesplit = message.Split(Convert.ToChar(MultipleCommandSeparatorTextBox.Text));
                                 //string[] messagesplit2 = 
-                                Console.WriteLine(Regex.Matches(message, "([-+]?/s?)").Cast<Match>().Select(m => m.Value));
+                                //Console.WriteLine(Regex.Matches(message, "([-+]?/s?)").Cast<Match>().Select(m => m.Value));
                                 foreach (var i in messagesplit)
                                 {
                                     foreach (var c in MasterControlList.Items)
@@ -2660,7 +2654,7 @@ namespace TwitchPlaysHub
                                                             multiplecommandtimers.Add(Convert.ToInt32(Convert.ToDecimal(itembreakdown[7]) * 1000));
                                                             multiplecommandtypes.Add(itembreakdown[6]);
                                                             //commandorderlist.Add(itembreakdown[2]);
-                                                            Console.WriteLine(i + " Matches " + itembreakdown[1]);
+                                                            //Console.WriteLine(i + " Matches " + itembreakdown[1]);
                                                         }
                                                     }
                                                 }
@@ -2670,7 +2664,7 @@ namespace TwitchPlaysHub
                                                     multiplecommandtimers.Add(Convert.ToInt32(Convert.ToDecimal(itembreakdown[7]) * 1000));
                                                     multiplecommandtypes.Add(itembreakdown[6]);
                                                     //commandorderlist.Add(itembreakdown[2]);
-                                                    Console.WriteLine(i + " Matches " + itembreakdown[1]);
+                                                   // Console.WriteLine(i + " Matches " + itembreakdown[1]);
                                                 }
                                             }
                                         }
@@ -2684,12 +2678,12 @@ namespace TwitchPlaysHub
                                                     {
                                                         if (userName.ToUpper() == m.ToString().ToUpper())
                                                         {
-                                                            Console.WriteLine("You passed the mod test!");
+                                                            //Console.WriteLine("You passed the mod test!");
                                                             multiplecommands.Add(itembreakdown[2]);
                                                             multiplecommandtimers.Add(Convert.ToInt32(Convert.ToDecimal(itembreakdown[7]) * 1000));
                                                             multiplecommandtypes.Add(itembreakdown[6]);
                                                             //commandorderlist.Add(itembreakdown[2]);
-                                                            Console.WriteLine(i + " Matches " + itembreakdown[1]);
+                                                            //Console.WriteLine(i + " Matches " + itembreakdown[1]);
                                                         }
                                                     }
                                                 }
@@ -2699,7 +2693,7 @@ namespace TwitchPlaysHub
                                                     multiplecommandtimers.Add(Convert.ToInt32(Convert.ToDecimal(itembreakdown[7]) * 1000));
                                                     multiplecommandtypes.Add(itembreakdown[6]);
                                                     //commandorderlist.Add(itembreakdown[2]);
-                                                    Console.WriteLine(i + " Matches " + itembreakdown[1]);
+                                                    //Console.WriteLine(i + " Matches " + itembreakdown[1]);
                                                 }
                                             }
                                         }
@@ -2712,6 +2706,7 @@ namespace TwitchPlaysHub
                             }
                             else if (message != null)
                             {
+                                //Console.WriteLine(message);
                                 foreach (var c in MasterControlList.Items)
                                 {
                                     string[] itembreakdown = c.ToString().Split(Convert.ToChar("|"));
@@ -2783,21 +2778,15 @@ namespace TwitchPlaysHub
                         commandorderlist.Add(message);
 
 
-
-
-                        //Check All Controls in List
-                        //  foreach (string item in MasterControlList.Items) do
-                        //  {
-                        //  Console.WriteLine(item.ToString());
-                        //}
-
                         //Omni-Command Check? (Checks for if you want commands to overlap or not, then plays the commands given) ***********************************************************************
                         if (UseMultipleCommandsSeparator.Checked == true & multiplecommands.Count() > 0)
                         {
                             //We're going to make clones of the lists needed so we don't run into errors in the new thread.
-                            List<string> localmultiplecommands = new List<string>(multiplecommands);
-                            List<string> localmultiplecommandtypes = new List<string>(multiplecommandtypes);
-                            List<Int32> localmultiplecommandtimers = new List<Int32>(multiplecommandtimers);
+                            List<string> localmultiplecommands = new List<string>(multiplecommands); // actual key that gets executed (e.g. Space, Z)
+                            List<string> localmultiplecommandtypes = new List<string>(multiplecommandtypes); // command type (e.g. direct press, simulated hold)
+                            List<Int32> localmultiplecommandtimers = new List<Int32>(multiplecommandtimers); // press delay for each command
+
+
 
                             if (AllowOverlappingTriggers.Checked == true)
                             {
@@ -2820,87 +2809,7 @@ namespace TwitchPlaysHub
                             }
 
                         }
-                        //Checks if multi-commands are enabled and populated
 
-                        /*
-                        if (UseMultipleCommandsSeparator.Checked == true & multiplecommands.Count() > 0) //Checks if multi-commands are enabled and populated
-                        {
-                            int timingspacer = 0;
-                            int currentcommandcount = 0;
-                            //Thread newthread = null;
-
-                            foreach (string singlecommand in multiplecommands)
-                            {
-                                 
-                                Thread.Sleep(timingspacer + Decimal.ToInt32(InputUpDownDelay.Value) * 1000);
-                                
-                                Console.WriteLine("we Just waited: " + timingspacer.ToString() + " And will add " + multiplecommandtimers[currentcommandcount]);
-                                timingspacer = multiplecommandtimers[currentcommandcount];
-                                Console.WriteLine("Command Type: " + multiplecommandtypes[currentcommandcount]);
-                                if (currentcommandcount+1 < multiplecommands.Count())
-                                {
-                                    nextcommand = multiplecommands[currentcommandcount + 1];
-                                } else
-                                {
-                                    nextcommand = null;
-                                }
-                                if (multiplecommandtypes[currentcommandcount] == "Direct Press")
-                                {
-                                    Console.WriteLine("We are about to do a DIRECT PRESS");
-                                    //Thread newinputthread = 
-                                    new Thread(() =>
-                                    {
-                                        SimulateKeyPress(singlecommand, timingspacer, true);
-
-                                    }).Start();
-                                    //newinputthread.Start();
-                                    //newinputthread.Join();
-                                }
-                                else if (multiplecommandtypes[currentcommandcount] == "Direct Hold")
-                                {
-                                    Console.WriteLine("We are about to press a DIRECT HOLD");
-                                    new Thread(() =>
-                                    {
-                                        SimulateKeyHold(singlecommand, timingspacer, true);
-                                    }).Start();
-                                }
-                                else if (multiplecommandtypes[currentcommandcount] == "Direct Stop")
-                                {
-                                    Console.WriteLine("We are about to press a DIRECT STOP");
-                                    StopAllIncomingCommands();
-                                    break;
-                                }
-                                else if (multiplecommandtypes[currentcommandcount] == "Simulated Press")
-                                {
-                                    Console.WriteLine("We are about to press a SIMULATED PRESS");
-                                    new Thread(() =>
-                                    {
-                                        SimulateKeyPress(singlecommand, timingspacer, false);
-                                    }).Start();
-                                }
-                                else if (multiplecommandtypes[currentcommandcount] == "Simulated Hold")
-                                {
-                                    Console.WriteLine("We are about to press a SIMULATED HOLD");
-                                    new Thread(() =>
-                                    {
-                                        SimulateKeyHold(singlecommand, timingspacer, false);
-                                    }).Start();
-                                }
-                                else if (multiplecommandtypes[currentcommandcount] == "Simulated Stop")
-                                {
-                                    Console.WriteLine("We are about to press a SIMULATED STOP");
-                                    StopAllIncomingCommands();
-                                    break;
-                                }
-                                currentcommandcount += 1;
-                                Thread.Sleep(Decimal.ToInt32(InputUpDownDelay.Value) * 1000);
-                            }
-
-                            //if (AllowMultipleTriggersCheckbox.Checked == false)
-                            //{
-                            //    break;
-                            //}
-                        } */
                         if (commandorderlist.Count > 0)
                         {
                             commandorderlist.RemoveAt(0);
@@ -2910,13 +2819,7 @@ namespace TwitchPlaysHub
 
                 //} // end lurk check
             }
-            Console.WriteLine("IRC is now Null");
-            //e.Cancel = true;
-            //if (BackgroundWorker.CancellationPending == true)
-            //{
-            //    Console.WriteLine("IRC is null, closing BackgroundWorker");
-            //    e.Cancel = true;
-            //}
+
 
         }
 
